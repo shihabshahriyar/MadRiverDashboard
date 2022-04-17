@@ -1,0 +1,14 @@
+services:
+
+  express:
+    build:
+      dockerfile: ./src/Dockerfile
+      context: ..
+    restart: always
+    volumes:
+      - ../src:/opt/app/src
+    command: bash -c 'echo "running express" && cd express && npx nodemon ./server.js'
+
+  # nginx:
+  #   depends_on:
+  #     - express

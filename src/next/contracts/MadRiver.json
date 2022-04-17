@@ -1,0 +1,63 @@
+[
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "TetherToken",
+		"outputs": [
+			{
+				"internalType": "contract ERC20Token",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "USDCoin",
+		"outputs": [
+			{
+				"internalType": "contract ERC20Token",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"components": [
+					{
+						"internalType": "address payable",
+						"name": "recipient",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "coinType",
+						"type": "string"
+					}
+				],
+				"internalType": "struct MadRiver.Transaction[]",
+				"name": "transactions",
+				"type": "tuple[]"
+			}
+		],
+		"name": "batchTransaction",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	}
+]

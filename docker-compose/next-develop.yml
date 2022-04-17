@@ -1,0 +1,4 @@
+services:
+
+  next:
+    command: bash -c 'echo "running next in dev mode" && cd next && npx next dev -p 8001'
