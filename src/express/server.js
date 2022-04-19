@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import routes from './routes'
+import routes from './routes.js'
 import mongoose from "mongoose"
 
 dotenv.config({ path: "./config.env" })

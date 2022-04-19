@@ -142,9 +142,7 @@ export default function Requests({ text }) {
     // }, [updateState.status])
 
 
-    useEffect(() => {
-        console.log(transactions)
-    }, [transactions])
+
 
     function getColor(status) {
         if(status == 'denied') {
