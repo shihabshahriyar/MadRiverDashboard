@@ -28,7 +28,7 @@ function Dashboard() {
     const  [userType, setType ] = useState('')
 
     
-    useEffect(() =>{ setForm({...form, coinType: selected.value })}, [selected])
+    useEffect(() =>{ setForm(f => ({...f, coinType: selected.value }) ) }, [selected])
     // useEffect(() => {
     //     if(user){
     //         setType(getUserType(user.email).type)

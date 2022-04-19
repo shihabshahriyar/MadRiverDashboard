@@ -247,7 +247,7 @@ export default function Requests({ text }) {
                 <div className="sm:px-6 lg:px-20 w-full mt-10">
                     <div className="px-4 py-4 md:py-7">
                         <div className="flex items-center justify-center">
-                            <p tabindex="0" className="focus:outline-none text-base sm:text-lg md:text-xl lg:text-2xl font-bold leading-normal text-gray-800">Tasks</p>
+                            <p tabIndex="0" className="focus:outline-none text-base sm:text-lg md:text-xl lg:text-2xl font-bold leading-normal text-gray-800">Tasks</p>
                         </div>
                     </div>
                     <div className="bg-white py-4 md:py-7 px-4 md:px-8 xl:px-10 rounded-lg border">
@@ -349,7 +349,7 @@ export default function Requests({ text }) {
                                                 return true
                                             else return transaction.status == filter
                                         }).map((transaction, index) => (
-                                            <tr className="focus:outline-none h-16 border border-gray-100 rounded">
+                                            <tr key={transaction._id} className="focus:outline-none h-16 border border-gray-100 rounded">
                                                 <td>
                                     <div className="ml-5">
                                     {!isMining && getUserType().type == 'admin' && transaction.status != 'approved' && <div  onClick={() => checkTx(transaction._id)} className={`w-5 flex justify-center items-center rounded cursor-pointer h-5 ${checkedIndices?.find((tx) => tx.id == transaction._id)?.isChecked ? 'bg-blue-500' : 'bg-slate-200'}`}>
@@ -401,9 +401,9 @@ export default function Requests({ text }) {
                                                             <path
                                                                 d="M12.5 5.83339L7.08333 11.2501C6.75181 11.5816 6.56556 12.0312 6.56556 12.5001C6.56556 12.9689 6.75181 13.4185 7.08333 13.7501C7.41485 14.0816 7.86449 14.2678 8.33333 14.2678C8.80217 14.2678 9.25181 14.0816 9.58333 13.7501L15 8.33339C15.663 7.67034 16.0355 6.77107 16.0355 5.83339C16.0355 4.8957 15.663 3.99643 15 3.33339C14.337 2.67034 13.4377 2.29785 12.5 2.29785C11.5623 2.29785 10.663 2.67034 10 3.33339L4.58333 8.75005C3.58877 9.74461 3.03003 11.0935 3.03003 12.5001C3.03003 13.9066 3.58877 15.2555 4.58333 16.2501C5.57789 17.2446 6.92681 17.8034 8.33333 17.8034C9.73985 17.8034 11.0888 17.2446 12.0833 16.2501L17.5 10.8334"
                                                                 stroke="#52525B"
-                                                                stroke-width="1.25"
-                                                                stroke-linecap="round"
-                                                                stroke-linejoin="round"
+                                                                strokeWidth="1.25"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
                                                             ></path>
                                                         </svg>
                                                         <p className="text-sm leading-none text-gray-600 ml-2">{transaction.address}</p>
@@ -416,7 +416,7 @@ export default function Requests({ text }) {
                                     <button className="focus:ring-2 focus:ring-offset-2 focus:ring-red-300 text-sm leading-none text-gray-600 py-3 px-5 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none">View</button>
                                 </td> */}
                                                 {transaction.status == 'approved' && transaction.hash != '' && <td>
-                                                    <a target="_blank" href={`https://rinkeby.etherscan.io/tx/${transaction.hash}`} className="bg-white px-3 py-2 border shadow rounded-lg cursor-pointer hover:bg-gray-50">View Transaction</a>
+                                                    <a target="_blank" rel="noreferrer" href={`https://rinkeby.etherscan.io/tx/${transaction.hash}`} className="bg-white px-3 py-2 border shadow rounded-lg cursor-pointer hover:bg-gray-50">View Transaction</a>
                                                 </td>}
                                                 {user && getUserType().type == 'admin' && transaction.status != 'approved' && !isMining && <td>
                                                     <Menu as="div" className="relative inline-block text-left">
