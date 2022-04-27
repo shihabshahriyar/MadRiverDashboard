@@ -6,5 +6,12 @@
     {
         "email": "makaveli7daysss@gmail.com",
         "type": "employee"
+    },
+    {
+        "email": "tk@tkeith.com",
+        "type": "admin"
+    }, {
+        "email": "tsrkeith@gmail.com",
+        "type": "employee"
     }
 ]

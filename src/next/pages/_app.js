@@ -1,6 +1,6 @@
 import '../styles/globals.css'
-import { Rinkeby, DAppProvider, useEtherBalance, useEthers, Config } from '@usedapp/core'
-import { formatEther } from '@ethersproject/units'
+import { Rinkeby, DAppProvider} from '@usedapp/core'
+// import { formatEther } from '@ethersproject/units'
 import AuthProvider from '../store/AuthProvider'
 import TransactionProvider from '../store/TransactionProvider'
 import { getDefaultProvider } from 'ethers'

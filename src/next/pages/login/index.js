@@ -3,18 +3,20 @@ import React, { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../../store/AuthProvider';
 import AuthGuard from '../../layouts/AuthGuard';
 
-const CLIENT_ID = '216274540535-2j61735jajct79qb7qdail1fp95cn7db.apps.googleusercontent.com'
+const CLIENT_ID = '418664685673-v4mnqvduk7bi7o23h2l8vjutfsfhpsrj.apps.googleusercontent.com'
 
 
 export default function Login() {
     const { login, fetchUser } = useContext(AuthContext)
 
-    const responseGoogle = (response) => {
-        login({ user: response.profileObj, token: response.tokenId })
+    const responseGoogle = async (response) => {
+        // console.log(response)
+        await login({ user: response.profileObj, token: response.tokenId })
     }
     
     const handleFailure = (result) => {
         alert(result)
+        console.log(result)
     }
 
     useEffect(() => {

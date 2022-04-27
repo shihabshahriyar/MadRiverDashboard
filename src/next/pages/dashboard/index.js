@@ -24,16 +24,11 @@ function Dashboard() {
     
     const [selected, setSelected] = useState(tokens[0])
     const { addTransaction } = useContext(TransactionContext)
-    const { user, getUserType } = useContext(AuthContext)
+    const { user, logout } = useContext(AuthContext)
     const  [userType, setType ] = useState('')
 
     
     useEffect(() =>{ setForm(f => ({...f, coinType: selected.value }) ) }, [selected])
-    // useEffect(() => {
-    //     if(user){
-    //         setType(getUserType(user.email).type)
-    //     }
-    // }, [user])
 
 
     async function onFormSubmit() {
@@ -42,7 +37,7 @@ function Dashboard() {
             setForm({ ...form, amount: 0, address: '', memo: ''})
         } catch (error) {
             alert(error?.message)
-            console.log(error)
+            console.log(error?.response?.data?.message)
         }
     }
 
@@ -60,7 +55,7 @@ function Dashboard() {
 
                     <div className="flex flex-row space-x-4">
                         <div className="flex-[2] flex justify-center items-center">
-                            <input type="number" className="w-full outline-none h-10 rounded p-6 bg-[#F5F5F5]" placeholder="Enter Amount" value={form.amount} onChange={(e) => setForm({...form, amount: e.target.value})} />
+                            <input type="number" min="0" className="w-full outline-none h-10 rounded p-6 bg-[#F5F5F5]" placeholder="Enter Amount" value={form.amount} onChange={(e) => setForm({...form, amount: e.target.value})} />
                         </div>
                         <div className="flex-1 flex justify-center items-center">
                             <Listbox value={selected} onChange={setSelected}>

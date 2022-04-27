@@ -1,14 +1,68 @@
 import { Router } from 'express'
 import Transaction from './models/Transaction.js'
+import Token from './models/Token.js'
+import jwt from 'jsonwebtoken'
+// import user from '../next/users.json'
 
 const routes = Router()
 
-routes.route('/').get(async (req, res) => {
+const verify = async function auth (req, res, next) {
+    const token = req.header('auth-token');
+    if(!token) return res.status(401).json({message: "Not Authenticated"});
+
+    try {
+        const isFound = await Token.findOne({ token })
+
+        if (!isFound) {
+            return res.status(401).json({
+                message:'Invalid Token, user not found',
+                token
+            });
+        } 
+        
+        next();
+    } catch(err) {
+        console.log(err.message)
+        return res.status(400).send(err.message);
+    }
+}
+
+
+routes.route('/login').post(async (req, res) => {
+    const token = req.body.token;
+    const isFound = await Token.findOne({ token })
+
+    if(!isFound) {
+        const dbToken = new Token({ token });
+        dbToken.save().then(data => {
+            res.status(200).json({ message: 'Token saved successfully'})
+        })
+        .catch(error => {
+            console.log(error.message)
+            res.status(500).json({ message: error.message});
+        })  
+    } else {
+        res.status(200).json({ message: 'Token already exists'})
+    }
+})
+
+routes.route('/logout').post(async (req, res) => {
+    const token = req.body.token;
+    try {
+        await Token.findOneAndDelete({ token })
+        res.status(200).json({ message: 'Token has been deleted'})
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({ message: error.message});
+    }
+})
+
+routes.route('/').get(verify, async (req, res) => {
     const transactions = await Transaction.find({ })
     res.status(200).json({ transactions })
 })
 
-routes.route('/add').post(async (req, res) => {
+routes.route('/add').post(verify, async (req, res) => {
 
     const transaction = new Transaction({
         ...req.body.transaction, hash: ''
@@ -25,7 +79,7 @@ routes.route('/add').post(async (req, res) => {
     })   
 })
 
-routes.route('/updateStatus').post(async (req, res) => {
+routes.route('/updateStatus').post(verify, async (req, res) => {
     const status = req.body.status
     const id = req.body.transactionId
     const hash = req.body.hash
@@ -41,7 +95,7 @@ routes.route('/updateStatus').post(async (req, res) => {
     })
 })
 
-routes.route('/updateStatusBatch').post(async (req, res) => {
+routes.route('/updateStatusBatch').post(verify, async (req, res) => {
     const status = req.body.status
     const ids = [...req.body.transactionIds]
     const hash = req.body.hash
