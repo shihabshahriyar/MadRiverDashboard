@@ -12,7 +12,7 @@ const AuthProvider = ({ children }) => {
 
     const login = async ({ user, token }) => {
         try {
-            await axios({ method: 'post', url: `${API}/login`, data: { token } })
+            // await axios({ method: 'post', url: `${API}/login`, data: { token } })
             axios.defaults.headers.common['auth-token'] = token
             setUser(user)
             setToken(token)
@@ -50,8 +50,8 @@ const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            const token = localStorage.getItem('token') || ''
-            await axios({ method: 'post', url: `${API}/logout`, data: { token } })
+            // const token = localStorage.getItem('token') || ''
+            // await axios({ method: 'post', url: `${API}/logout`, data: { token } })
             axios.defaults.headers.common['auth-token'] = null
             setUser(null)
             setToken(null)

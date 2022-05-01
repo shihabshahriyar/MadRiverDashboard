@@ -5,12 +5,13 @@ import AuthGuard from '../../layouts/AuthGuard';
 
 const CLIENT_ID = '418664685673-v4mnqvduk7bi7o23h2l8vjutfsfhpsrj.apps.googleusercontent.com'
 
-
 export default function Login() {
     const { login, fetchUser } = useContext(AuthContext)
 
     const responseGoogle = async (response) => {
-        // console.log(response)
+          
+        // console.log(ticket)
+        // console.log(payload)
         await login({ user: response.profileObj, token: response.tokenId })
     }
     

@@ -31,7 +31,7 @@ export default function Requests({ text }) {
     const {  account } = useEthers()
     const [txIdBeingMined, setTxId] = useState('')
     const [isMining, setMining] = useState(false)
-    const { user, getUserType } = useContext(AuthContext)
+    const { user, getUserType, fetchUser, logout } = useContext(AuthContext)
     const { getTransactions, transactions, updateStatus, updateStatusBatch } = useContext(TransactionContext)
     const { sendTransaction, state } = useSendTransaction()
     const [checkedIndices, setCheckedIndices] = useState([])
@@ -73,11 +73,17 @@ export default function Requests({ text }) {
 
     useEffect(() => {
         async function getAllTransactions() {
-            await getTransactions()
-            await loadWeb3()
-            await loadBlockchainData()
+            try {
+                await fetchUser()
+                await getTransactions()
+                await loadWeb3()
+                await loadBlockchainData()
+            } catch(error) {
+                if(error?.response?.data?.message == 'logout') {
+                    logout()
+                }
+            }
         }
-
         getAllTransactions()
     }, [])
 

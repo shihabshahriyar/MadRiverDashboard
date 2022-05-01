@@ -5,7 +5,7 @@ import { CheckIcon, SelectorIcon } from '@heroicons/react/solid'
 import AuthGuard from '../../layouts/AuthGuard'
 import { TransactionContext } from "../../store/TransactionProvider";
 import { AuthContext } from "../../store/AuthProvider";
-
+import web3 from 'web3'
 
 function Dashboard() {
     const tokens = [
@@ -24,9 +24,12 @@ function Dashboard() {
     
     const [selected, setSelected] = useState(tokens[0])
     const { addTransaction } = useContext(TransactionContext)
-    const { user, logout } = useContext(AuthContext)
+    const { user, logout, fetchUser } = useContext(AuthContext)
     const  [userType, setType ] = useState('')
 
+    useEffect(() => {
+        fetchUser()
+    }, [])
     
     useEffect(() =>{ setForm(f => ({...f, coinType: selected.value }) ) }, [selected])
 
@@ -37,8 +40,25 @@ function Dashboard() {
             setForm({ ...form, amount: 0, address: '', memo: ''})
         } catch (error) {
             alert(error?.message)
+            if(error?.response?.data?.message == 'logout') {
+                logout()
+            }
             console.log(error?.response?.data?.message)
+            // logout()
         }
+    }
+
+    function renderSubmitButton() {
+        if(form.address == '' || web3.utils.isAddress(form.address) == false) {
+            return <button className="border shadow px-2 cursor-default py-4 bg-gray-200 text-black w-full rounded">Enter Valid Wallet Address</button>
+
+        }
+
+        if(form.memo == '') {
+            return <button className="border shadow px-2 py-4 cursor-default bg-gray-200 text-black w-full rounded">Enter Memo</button>
+        }
+
+        return <button className="border shadow px-2 py-4 bg-blue-500 text-white w-full rounded" onClick={onFormSubmit}>Make Request</button>
     }
 
     return (
@@ -118,7 +138,7 @@ function Dashboard() {
                     </div>
 
                     <div>
-                        <button className="border shadow px-2 py-4 bg-blue-500 text-white w-full rounded" onClick={onFormSubmit}>Make Request</button>
+                       {renderSubmitButton()}
                     </div>
                     <div>
 
