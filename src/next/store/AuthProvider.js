@@ -3,7 +3,7 @@ import users from '../users.json'
 import axios from 'axios'
 
 export const AuthContext = React.createContext(null)
-const API = 'https://shihab-trial-project.madriver.io/express'
+const API = 'http://localhost:8000/express'
 
 const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null)

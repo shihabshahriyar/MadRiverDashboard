@@ -4,6 +4,8 @@ import { Rinkeby, DAppProvider} from '@usedapp/core'
 import AuthProvider from '../store/AuthProvider'
 import TransactionProvider from '../store/TransactionProvider'
 import { getDefaultProvider } from 'ethers'
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify'
 
 const dappConfig = {
   readOnlyChainId: Rinkeby.chainId,
@@ -17,6 +19,7 @@ function MyApp({ Component, pageProps }) {
       <TransactionProvider>
           <DAppProvider config={dappConfig}>
               <Component {...pageProps} />
+              <ToastContainer limit={1}/>
           </DAppProvider>
         </TransactionProvider>
       </AuthProvider>

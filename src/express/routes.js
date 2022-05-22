@@ -36,6 +36,7 @@ const verify = async function auth(req, res, next) {
 
         if(foundUser) {
             console.log(email)
+            req.user = payload
             next();
         } else {
             console.log(error.message)
@@ -86,35 +87,6 @@ const onlyAdmin = async function auth(req, res, next) {
 }
 
 
-// routes.route('/login').post(async (req, res) => {
-//     const token = req.body.token;
-//     const isFound = await Token.findOne({ token })
-
-//     if (!isFound) {
-//         const dbToken = new Token({ token });
-//         dbToken.save().then(data => {
-//             res.status(200).json({ message: 'Token saved successfully' })
-//         })
-//             .catch(error => {
-//                 console.log(error.message)
-//                 res.status(500).json({ message: error.message });
-//             })
-//     } else {
-//         res.status(200).json({ message: 'Token already exists' })
-//     }
-// })
-
-// routes.route('/logout').post(async (req, res) => {
-//     const token = req.body.token;
-//     try {
-//         await Token.findOneAndDelete({ token })
-//         res.status(200).json({ message: 'Token has been deleted' })
-//     } catch (error) {
-//         console.log(error.message)
-//         res.status(500).json({ message: error.message });
-//     }
-// })
-
 routes.route('/').get(verify, async (req, res) => {
     try {
         const transactions = await Transaction.find({})
@@ -126,7 +98,7 @@ routes.route('/').get(verify, async (req, res) => {
 
 routes.route('/add').post(verify, async (req, res) => {
     const sanitizedTxn = {
-        email: sanitizeHtml(req.body.transaction.email),
+        email: sanitizeHtml(req.user.email),
         amount: sanitizeHtml(req.body.transaction.amount),
         memo: sanitizeHtml(req.body.transaction.memo),
         address: sanitizeHtml(req.body.transaction.address),

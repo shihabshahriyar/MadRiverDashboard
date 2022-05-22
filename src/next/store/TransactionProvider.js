@@ -2,8 +2,8 @@ import React, { useContext, useState } from 'react'
 import axios from 'axios'
 
 export const TransactionContext = React.createContext(null)
-const API = 'https://shihab-trial-project.madriver.io/express'
-// const API = 'http://localhost:8000/express'
+// const API = 'https://shihab-trial-project.madriver.io/express'
+const API = 'http://localhost:8000/express'
 
 const TransactionProvider = ({ children }) => {
     const [transactions, setTransactions] = useState([])

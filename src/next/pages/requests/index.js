@@ -6,22 +6,31 @@ import { TransactionContext } from "../../store/TransactionProvider";
 import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/solid'
-import { useEthers, useSendTransaction, useContractFunction , Ropsten } from '@usedapp/core'
+import { useEthers, useSendTransaction, useContractFunction } from '@usedapp/core'
 import {Contract} from '@usedapp/core/node_modules/@ethersproject/contracts'
 import { ethers, utils } from "ethers";
 import { FiMail, FiDollarSign, FiCheck } from 'react-icons/fi'
 import ERC20ABI from '../../contracts/ERC20.json'
 import MadRiverABI from '../../contracts/MadRiver.json'
-import Web3 from 'web3';
+import Web3 from 'web3'
+import { toast } from 'react-toastify'
+import ReactTooltip from 'react-tooltip';
+import format from 'date-fns/format'
+
+// import { readFile } from 'fs/promises'
+
+// let config
+// readFile(new URL('../../../../local.conf.json', import.meta.url)).then((res) => {
+//     config = JSON.parse(res)
+// })
+
+// const config = JSON.parse(readFile(new URL('', import.meta.url)));
 
 const ERCInterface = new utils.Interface(ERC20ABI)
-// const MadRiverInterface = new utils.Interface(MadRiverABI)
 
 const MadRiverAddress = '0x6823AdD85dd35F632b3AfFf980977818FAed6a23'
 const TetherAddress = '0x3B00Ef435fA4FcFF5C209a37d1f3dcff37c705aD'
 const USDCAddress = '0xeb8f08a975Ab53E34D8a0330E0D34de942C95926'
-// const MadRiverContract = new Contract(MadRiverAddress, MadRiverInterface)
-// const MadRiverContract = new Web3().eth.Contract(MadRiverABI,MadRiverAddress)
 
 const TetherContract = new Contract(TetherAddress, ERCInterface)
 const USDContract = new Contract(USDCAddress, ERCInterface)
@@ -114,40 +123,38 @@ export default function Requests({ text }) {
             else 
                 return a 
         }, 0).toString()) }).on('receipt', (receipt) => {
-                updateStatusBatch('approved', checkedIndices.filter((tx) => tx.isChecked == true).map((tx) => tx.id), receipt.transactionHash)
+                updateStatusBatch('sent', checkedIndices.filter((tx) => tx.isChecked == true).map((tx) => tx.id), receipt.transactionHash)
                 setMining(false)
-             }).catch((error) => {
-                 alert(error.message)
+                toast.clearWaitingQueue();
+                toast('Successfully mined!', {
+                    position: "bottom-center",
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+             }).on('error', (error) => {
+                //  alert(error.message)
                  console.log(error)
                  setMining(false)
+                 toast.clearWaitingQueue();
+                 toast('Failed Mining', {
+                    position: "bottom-center",
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
              })
-        // let addresses = transactionsToSend.map((tx) => tx.address)
-        // let amounts =  transactionsToSend.map((tx) => utils.parseEther(tx.amount.toString()))
-        // console.log(addresses)
-        // console.log(amounts)
-        // setMining(true)
-        // sendBatchTransaction([...addresses],[...amounts])
     }
 
-    // useEffect(() => {
-    //     if(updateState.status == 'Success') {
-    //         updateStatusBatch('approved', checkedIndices.filter((tx) => tx.isChecked == true).map((tx) => tx.id), updateState.receipt.transactionHash)
-    //         // setTxId('')
-    //         setMining(false)
-    //     }
-
-    //     if (updateState.status == 'Mining' || updateState.status == 'PendingSignature') {
-    //         setMining(true)
-    //     }
-
-    //     if(updateState.status == 'Fail' || updateState.status == 'Exception') {
-    //         alert(updateState)
-    //         console.log(updateState)
-    //         setMining(false)
-    //     }
-    // }, [updateState.status])
-
-
+    async function batchStatusUpdate(status) {
+        updateStatusBatch(status, checkedIndices.filter((tx) => tx.isChecked == true).map((tx) => tx.id), '')
+    }
 
 
     function getColor(status) {
@@ -155,8 +162,10 @@ export default function Requests({ text }) {
             return 'text-red-700 bg-red-100'
         } else if (status == 'approved') {
             return 'text-green-700 bg-green-100'
-        } else {
+        } else if (status == 'pending') {
             return 'text-amber-600 bg-amber-100'
+        } else if (status == 'sent') {
+            return 'text-blue-600 bg-blue-100'
         }
     }
 
@@ -193,49 +202,139 @@ export default function Requests({ text }) {
 
     useEffect(() => {
         if(state.status == 'Success') {
-            updateStatus('approved', txIdBeingMined, state.receipt.transactionHash)
+            updateStatus('sent', txIdBeingMined, state.receipt.transactionHash)
             setTxId('')
             setMining(false)
+            toast.clearWaitingQueue();
+            toast('Successfully mined!', {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                });
         }
         if (state.status == 'Mining' || state.status == 'PendingSignature') {
             setMining(true)
+            toast.clearWaitingQueue();
+            toast('Mining transaction', {
+                position: "bottom-center",
+                autoClose: 15000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            })
         }
 
         if(state.status == 'Fail' || state.status == 'Exception') {
             alert(state.errorMessage)
             setMining(false)
+            toast.clearWaitingQueue();
+            toast('Failed Mining', {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            })
         }
     }, [state.status])
 
     useEffect(() => {
         if(usdtState.status == 'Success') {
-            updateStatus('approved', txIdBeingMined, usdtState.receipt.transactionHash)
+            updateStatus('sent', txIdBeingMined, usdtState.receipt.transactionHash)
             setTxId('')
             setMining(false)
+            toast.clearWaitingQueue();
+            toast('Successfully mined!', {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                });
         }
         if (usdtState.status == 'Mining' || usdtState.status == 'PendingSignature') {
             setMining(true)
+            toast.clearWaitingQueue();
+            toast('Mining transaction', {
+                position: "bottom-center",
+                autoClose: 15000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            })
         }
 
         if(usdtState.status == 'Fail' || usdtState.status == 'Exception') {
             alert(usdtState.errorMessage)
             setMining(false)
+            toast.clearWaitingQueue();
+            toast('Failed Mining', {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            })
         }
     }, [usdtState.status])
 
     useEffect(() => {
         if(usdcState.status == 'Success') {
-            updateStatus('approved', txIdBeingMined, usdcState.receipt.transactionHash)
+            updateStatus('sent', txIdBeingMined, usdcState.receipt.transactionHash)
             setTxId('')
             setMining(false)
+            toast.clearWaitingQueue();
+            toast('Successfully mined!', {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            })
         }
         if (usdcState.status == 'Mining' || usdcState.status == 'PendingSignature') {
             setMining(true)
+            toast.clearWaitingQueue();
+            toast('Mining transaction', {
+                position: "bottom-center",
+                autoClose: 15000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            })
         }
 
         if(usdcState.status == 'Fail' || usdcState.status == 'Exception') {
             alert(usdcState.errorMessage)
             setMining(false)
+            toast.clearWaitingQueue();
+            toast('Failed Mining', {
+                position: "bottom-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            })
         }
     }, [usdcState.status])
 
@@ -249,6 +348,7 @@ export default function Requests({ text }) {
         <AuthGuard type="must-be-logged-in">
             <div className="w-full pb-40">
                 <Navbar route="requests" />
+                <ReactTooltip />
 
                 <div className="sm:px-6 lg:px-20 w-full mt-10">
                     <div className="px-4 py-4 md:py-7">
@@ -262,6 +362,11 @@ export default function Requests({ text }) {
                                 <a className="" href=" javascript:void(0)" onClick={() => setFilter('')}>
                                     <div className={`py-2 px-8 ${filter == '' ? 'bg-blue-100 text-blue-700' : ''} rounded`}>
                                         <p>All</p>
+                                    </div>
+                                </a>
+                                <a className="ml-4 sm:ml-8" href="javascript:void(0)">
+                                    <div className={`py-2 px-8 ${filter == 'sent' ? 'bg-indigo-100 text-blue-700' : ''} rounded`} onClick={() => setFilter('sent')}>
+                                        <p>Sent</p>
                                     </div>
                                 </a>
                                 <a className="ml-4 sm:ml-8" href="javascript:void(0)">
@@ -298,9 +403,10 @@ export default function Requests({ text }) {
                                                             leaveFrom="transform opacity-100 scale-100"
                                                             leaveTo="transform opacity-0 scale-95"
                                                         >
+                                                            
                                                             <Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 z-50 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none">
                                                                 <div className="py-1">
-                                                                    {account && <Menu.Item onClick={() => batchUpdate()}>
+                                                                <Menu.Item onClick={() => batchUpdate()}>
                                                                         {({ active }) => (
                                                                             <a
                                                                                 href="#"
@@ -309,11 +415,24 @@ export default function Requests({ text }) {
                                                                                     'block px-4 py-2 text-sm'
                                                                                 )}
                                                                             >
-                                                                                Approve & Send
+                                                                                Send
                                                                             </a>
                                                                         )}
-                                                                    </Menu.Item>}
-                                                                    <Menu.Item onClick={() => batchUpdate()}>
+                                                                    </Menu.Item>
+                                                                    <Menu.Item onClick={() => batchStatusUpdate('approved')}>
+                                                                        {({ active }) => (
+                                                                            <a
+                                                                                href="#"
+                                                                                className={classNames(
+                                                                                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                                                                    'block px-4 py-2 text-sm'
+                                                                                )}
+                                                                            >
+                                                                                Approve
+                                                                            </a>
+                                                                        )}
+                                                                    </Menu.Item>
+                                                                    <Menu.Item onClick={() => batchStatusUpdate('pending')}>
                                                                         {({ active }) => (
                                                                             <a
                                                                                 href="#"
@@ -326,7 +445,7 @@ export default function Requests({ text }) {
                                                                             </a>
                                                                         )}
                                                                     </Menu.Item>
-                                                                    <Menu.Item onClick={() => batchUpdate()}>
+                                                                    <Menu.Item onClick={() => batchStatusUpdate('denied')}>
                                                                         {({ active }) => (
                                                                             <a
                                                                                 href="#"
@@ -350,15 +469,21 @@ export default function Requests({ text }) {
                             <table className="w-full whitespace-nowrap">
                                 <tbody>
                                     {
-                                        transactions.filter((transaction,i) => {
+                                        user && transactions.filter((transaction,i) => {
                                             if(filter == '') 
                                                 return true
                                             else return transaction.status == filter
+                                        }).filter((transaction) => {
+                                            if (getUserType().type == 'admin')
+                                                return true
+                                            else {
+                                                return transaction.email == user.email
+                                            }
                                         }).map((transaction, index) => (
                                             <tr key={transaction._id} className="focus:outline-none h-16 border border-gray-100 rounded">
                                                 <td>
                                     <div className="ml-5">
-                                    {!isMining && getUserType().type == 'admin' && transaction.status != 'approved' && <div  onClick={() => checkTx(transaction._id)} className={`w-5 flex justify-center items-center rounded cursor-pointer h-5 ${checkedIndices?.find((tx) => tx.id == transaction._id)?.isChecked ? 'bg-blue-500' : 'bg-slate-200'}`}>
+                                    {!isMining && getUserType().type == 'admin' && transaction.status != 'sent' && <div  onClick={() => checkTx(transaction._id)} className={`w-5 flex justify-center items-center rounded cursor-pointer h-5 ${checkedIndices?.find((tx) => tx.id == transaction._id)?.isChecked ? 'bg-blue-500' : 'bg-slate-200'}`}>
                                     {checkedIndices?.find((tx) => tx.id == transaction._id)?.isChecked && <FiCheck size={15} className="text-white" />}
 
                                     </div>}
@@ -416,15 +541,15 @@ export default function Requests({ text }) {
                                                     </div>
                                                 </td>
                                                 <td className="pl-5">
-                                                    <button className={`py-3 px-3 text-sm focus:outline-none leading-none capitalize ${getColor(transaction.status)} rounded`}>{transaction.status}</button>
+                                                    <button data-tip={`Created at ${format(new Date(transaction.createdAt), 'MM/dd/yyyy')}, Updated at ${format(new Date(transaction.updatedAt), 'MM/dd/yyyy')}`} className={`py-3 px-3 text-sm focus:outline-none leading-none capitalize ${getColor(transaction.status)} rounded`}>{transaction.status}</button>
                                                 </td>
                                                 {/* <td className="pl-4">
                                     <button className="focus:ring-2 focus:ring-offset-2 focus:ring-red-300 text-sm leading-none text-gray-600 py-3 px-5 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none">View</button>
                                 </td> */}
-                                                {transaction.status == 'approved' && transaction.hash != '' && <td>
+                                                {transaction.status == 'sent' && transaction.hash != '' && <td>
                                                     <a target="_blank" rel="noreferrer" href={`https://rinkeby.etherscan.io/tx/${transaction.hash}`} className="bg-white px-3 py-2 border shadow rounded-lg cursor-pointer hover:bg-gray-50">View Transaction</a>
                                                 </td>}
-                                                {user && getUserType().type == 'admin' && transaction.status != 'approved' && !isMining && <td>
+                                                {user && getUserType().type == 'admin' && transaction.status != 'sent' && !isMining && <td>
                                                     <Menu as="div" className="relative inline-block text-left">
                                                         <div>
                                                             <Menu.Button className="inline-flex justify-center w-full z-[1] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
@@ -444,7 +569,7 @@ export default function Requests({ text }) {
                                                         >
                                                             <Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 z-50 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none">
                                                                 <div className="py-1">
-                                                                    {account && <Menu.Item onClick={() =>  approveTransaction(transaction.status, transaction._id)}>
+                                                                <Menu.Item onClick={() =>  approveTransaction('sent', transaction._id)}>
                                                                         {({ active }) => (
                                                                             <a
                                                                                 href="#"
@@ -453,10 +578,23 @@ export default function Requests({ text }) {
                                                                                     'block px-4 py-2 text-sm'
                                                                                 )}
                                                                             >
-                                                                                Approve & Send
+                                                                                Send
                                                                             </a>
                                                                         )}
-                                                                    </Menu.Item>}
+                                                                    </Menu.Item>
+                                                                 <Menu.Item onClick={() =>  updateStatus('approved', transaction._id, '')}>
+                                                                        {({ active }) => (
+                                                                            <a
+                                                                                href="#"
+                                                                                className={classNames(
+                                                                                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                                                                    'block px-4 py-2 text-sm'
+                                                                                )}
+                                                                            >
+                                                                                Approve
+                                                                            </a>
+                                                                        )}
+                                                                    </Menu.Item>
                                                                     <Menu.Item onClick={() => updateStatus('pending', transaction._id, '')}>
                                                                         {({ active }) => (
                                                                             <a
